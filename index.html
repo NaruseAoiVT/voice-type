@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>声質診断テスト ｜ MEDISIA</title>
+<meta name="description" content="10秒の読み上げで、声の高さ・抑揚・テンポ・間から配信者向けの16タイプを判定します。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="声質診断テスト ｜ あなたの声は16タイプのどれ？">
+<meta property="og:description" content="10秒の読み上げで、声の高さ・抑揚・テンポ・間から配信者向けの16タイプを判定します。">
+<meta property="og:image" content="https://naruseaoivt.github.io/voice-type/ogp/top.png?v=2">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="wordmark" href="./">
+    <span class="dots">
+      <i style="background:#d1854e"></i><i style="background:#3e9c86"></i><i style="background:#6f78ce"></i>
+    </span>
+    声質診断
+  </a>
+</header>
+<div class="progress"><div id="progress-bar"></div></div>
+
+<main id="app">
+
+  <!-- ① はじめに -->
+  <section class="screen" id="s-intro" data-active>
+    <div class="hero">
+      <div class="badge">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <g stroke-linecap="round" stroke-width="7" fill="none">
+            <path d="M10 32v0" stroke="#d1854e"/>
+            <path d="M22 20v24" stroke="#d1854e"/>
+            <path d="M32 12v40" stroke="#3e9c86"/>
+            <path d="M42 22v20" stroke="#6f78ce"/>
+            <path d="M54 28v8" stroke="#6f78ce"/>
+          </g>
+        </svg>
+      </div>
+      <h1>あなたの声は<br>16タイプのどれ？</h1>
+      <p class="sub"><span class="nb">声質や話し方から、</span><span class="nb">配信での活かし方と</span><span class="nb">合った機材を</span><span class="nb">簡易診断できます！</span></p>
+    </div>
+
+    <div class="wrap wide">
+      <div class="steps3">
+        <div class="step-card" style="--c:#d1854e">
+          <span class="chip">ステップ 1</span>
+          <b>環境音を測定</b>
+          <p>2秒間静かに！</p>
+        </div>
+        <div class="step-card" style="--c:#3e9c86">
+          <span class="chip">ステップ 2</span>
+          <b>声を録音して分析</b>
+          <p>何度でも録り直せます！</p>
+        </div>
+        <div class="step-card" style="--c:#6f78ce">
+          <span class="chip">ステップ 3</span>
+          <b>配信スタイルを確認</b>
+          <p>当てはまる項目をチェック！</p>
+        </div>
+      </div>
+
+      <ul class="notes">
+        <li><strong>1分程度</strong>で簡易診断！</li>
+        <li>結果から<strong>適性の高い機材</strong>も診断します！</li>
+      </ul>
+
+      <button class="primary" id="btn-start">テストを始める</button>
+      <p class="fine center" id="intro-error" hidden></p>
+    </div>
+  </section>
+
+  <!-- ② 部屋の音を測る -->
+  <section class="screen" id="s-noise">
+    <div class="wrap step">
+      <span class="chip">ステップ 1 / 3</span>
+      <h2 class="head" id="noise-title">環境音を測定します</h2>
+      <p class="lead">環境音のレベルを測定しています。声を出さずにお待ちください。</p>
+      <div class="card">
+        <div class="meter"><div class="meter-bar" id="noise-bar"></div></div>
+        <p class="result-line" id="noise-result" hidden></p>
+        <button class="primary" id="btn-noise-next" hidden>次へ</button>
+        <button class="ghost" id="btn-noise-retry" hidden>もう一度測る</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 録音 -->
+  <section class="screen" id="s-record">
+    <div class="wrap step">
+      <span class="chip">ステップ 2 / 3</span>
+      <h2 class="head">録音して分析します</h2>
+      <div class="script-head">
+        <p class="script-label" id="script-label">配信のあいさつ</p>
+        <button class="script-switch" id="btn-pick-script" type="button">音読用作品から選ぶ</button>
+      </div>
+      <blockquote class="script" id="script-text"></blockquote>
+      <p class="fine script-credit" id="script-credit" hidden></p>
+      <p class="fine" id="script-hint">普段の配信で話すような感じで話してみてください！</p>
+
+      <div class="card rec-area">
+        <button class="record" id="btn-record"><span class="dot"></span><span id="record-label">録音する</span></button>
+        <p class="timer" id="timer">0.0<span> 秒</span></p>
+        <div class="meter"><div class="meter-bar live" id="level-bar"></div></div>
+        <p class="fine" id="record-hint">8秒以上録ってください</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ 聞き返す -->
+  <section class="screen" id="s-review">
+    <div class="wrap step">
+      <span class="chip">ステップ 2 / 3</span>
+      <h2 class="head">録音を確認します</h2>
+      <p class="lead">聞き返して、気になったら録り直せます。</p>
+      <div class="card">
+        <audio id="player" controls></audio>
+        <p class="result-line" id="review-warn" hidden></p>
+        <button class="primary" id="btn-accept">この録音で診断する</button>
+        <button class="ghost" id="btn-retake">録り直す</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑤ 質問（1問ずつ） -->
+  <section class="screen" id="s-questions">
+    <div class="wrap step">
+      <span class="chip">ステップ 3 / 3</span>
+      <h2 class="head">配信スタイルを確認します</h2>
+      <div class="card" id="question-card"></div>
+      <div class="center"><button class="back-link" id="btn-back" hidden>ひとつ戻る</button></div>
+    </div>
+  </section>
+
+  <!-- ⑥ 結果 -->
+  <section class="screen" id="s-result">
+    <div id="result-body"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="inner">
+    <a class="wordmark" href="./">
+      <span class="dots">
+        <i style="background:#d1854e"></i><i style="background:#3e9c86"></i><i style="background:#6f78ce"></i>
+      </span>
+      声質診断
+    </a>
+    <p>created by <a href="https://x.com/Naruse__Aoi" target="_blank" rel="noopener"><strong>鳴瀬碧衣</strong></a></p>
+    <p><span class="nb">presented by <a href="https://x.com/MEDISIA_info" target="_blank" rel="noopener"><strong>MEDISIA</strong></a></span><span class="nb">（Vライバー・ストリーマー事務所）</span></p>
+    <p class="fine">当ページはAmazonの広告を含みます。</p>
+  </div>
+</footer>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
